@@ -10,21 +10,42 @@ factory.Uri = new("amqps://wjagymjh:CXETsmwe1_FRjhexW3DnApC73t3sxI4B@toad.rmq.cl
 using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
-channel.ExchangeDeclare(exchange: "fanout-exchange-example", type: ExchangeType.Fanout);
+channel.ExchangeDeclare(exchange: "topic-exchange-example", type: ExchangeType.Topic);
 
-Console.Write("Kuruk Adını giriniz: ");
-string queueName = Console.ReadLine();
-channel.QueueDeclare(queue: queueName, exclusive: false);
-channel.QueueBind(queue: queueName, exchange: "fanout-exchange-example", routingKey: string.Empty);
+
+Console.Write("Dinlenecek topic formatını belirtiniz: ");
+string topic = Console.ReadLine();
+string queueName = channel.QueueDeclare().QueueName;
+channel.QueueBind(queue: queueName, exchange: "topic-exchange-example", routingKey: topic);
 
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: queueName, autoAck: true, consumer:consumer);
+channel.BasicConsume(queue: queueName, autoAck: true, consumer);
 consumer.Received += (sender, e) =>
 {
     string message = Encoding.UTF8.GetString(e.Body.Span);
     Console.WriteLine(message);
 };
+
 Console.Read();
+
+
+//*3///// Fanout Exchange//////
+//channel.ExchangeDeclare(exchange: "fanout-exchange-example", type: ExchangeType.Fanout);
+
+//Console.Write("Kuyruk Adını giriniz: ");
+//string queueName = Console.ReadLine();
+//channel.QueueDeclare(queue: queueName, exclusive: false);
+//channel.QueueBind(queue: queueName, exchange: "fanout-exchange-example", routingKey: string.Empty);
+
+//EventingBasicConsumer consumer = new(channel);
+//channel.BasicConsume(queue: queueName, autoAck: true, consumer:consumer);
+//consumer.Received += (sender, e) =>
+//{
+//    string message = Encoding.UTF8.GetString(e.Body.Span);
+//    Console.WriteLine(message);
+//};
+//Console.Read();
+///////////////////////////
 
 //*2//// Direct Exchange ////////
 ////Exchange tanımlama

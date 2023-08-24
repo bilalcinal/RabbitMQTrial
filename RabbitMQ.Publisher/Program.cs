@@ -5,17 +5,30 @@ using RabbitMQ.Client;
 ConnectionFactory factory = new();
 factory.Uri = new("amqps://wjagymjh:CXETsmwe1_FRjhexW3DnApC73t3sxI4B@toad.rmq.cloudamqp.com/wjagymjh");
 
-//Bağlantı etkinleştirme ve kanal oluşturma
+////Bağlantı etkinleştirme ve kanal oluşturma
 using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
-channel.ExchangeDeclare(exchange:"fanout-exchange-example",type: ExchangeType.Fanout);
+channel.ExchangeDeclare(exchange:"topic-exchange-example",type: ExchangeType.Topic);
 for (int i = 0; i < 100; i++)
 {
     await Task.Delay(200);
     byte[] message = Encoding.UTF8.GetBytes($"Merhaba {i}");
-    channel.BasicPublish(exchange: "fanout-exchange-example", routingKey: string.Empty, body: message);
+    Console.Write("mesjın gönderilecek Topic formatını belirtiniz: ");
+    string topic = Console.ReadLine();
+    channel.BasicPublish(exchange: "topic-exchange-example",routingKey:topic,body: message );
 }
+
+
+//*3/// Fanout Exchange/////
+//channel.ExchangeDeclare(exchange:"fanout-exchange-example",type: ExchangeType.Fanout);
+//for (int i = 0; i < 100; i++)
+//{
+//    await Task.Delay(200);
+//    byte[] message = Encoding.UTF8.GetBytes($"Merhaba {i}");
+//    channel.BasicPublish(exchange: "fanout-exchange-example", routingKey: string.Empty, body: message);
+//}
+//////////////////////////
 
 
 //*2//// Direct Exchange ////////
