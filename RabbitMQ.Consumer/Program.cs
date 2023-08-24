@@ -10,13 +10,13 @@ factory.Uri = new("amqps://wjagymjh:CXETsmwe1_FRjhexW3DnApC73t3sxI4B@toad.rmq.cl
 using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
-//Exchange tanımlama
-channel.ExchangeDeclare(exchange: "direct-exchange-example", type:ExchangeType.Direct);
+channel.ExchangeDeclare(exchange: "fanout-exchange-example", type: ExchangeType.Fanout);
 
-//Yolanan değerleri tüketir
-string queueName = channel.QueueDeclare().QueueName;
+Console.Write("Kuruk Adını giriniz: ");
+string queueName = Console.ReadLine();
+channel.QueueDeclare(queue: queueName, exclusive: false);
+channel.QueueBind(queue: queueName, exchange: "fanout-exchange-example", routingKey: string.Empty);
 
-channel.QueueBind(queue: queueName, exchange: "direct-exchange-example", routingKey: "direct-queue-example");
 EventingBasicConsumer consumer = new(channel);
 channel.BasicConsume(queue: queueName, autoAck: true, consumer:consumer);
 consumer.Received += (sender, e) =>
@@ -26,7 +26,25 @@ consumer.Received += (sender, e) =>
 };
 Console.Read();
 
-////// Basic RabbitMQ //////
+//*2//// Direct Exchange ////////
+////Exchange tanımlama
+//channel.ExchangeDeclare(exchange: "direct-exchange-example", type:ExchangeType.Direct);
+
+////Yolanan değerleri tüketir
+//string queueName = channel.QueueDeclare().QueueName;
+
+//channel.QueueBind(queue: queueName, exchange: "direct-exchange-example", routingKey: "direct-queue-example");
+//EventingBasicConsumer consumer = new(channel);
+//channel.BasicConsume(queue: queueName, autoAck: true, consumer:consumer);
+//consumer.Received += (sender, e) =>
+//{
+//    string message = Encoding.UTF8.GetString(e.Body.Span);
+//    Console.WriteLine(message);
+//};
+//Console.Read();
+///////////////////////////
+
+//*1///// Basic RabbitMQ //////
 ////kuyruk oluşturma
 //channel.QueueDeclare(queue: "Example-queue", exclusive: false, durable: true);
 

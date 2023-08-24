@@ -9,24 +9,34 @@ factory.Uri = new("amqps://wjagymjh:CXETsmwe1_FRjhexW3DnApC73t3sxI4B@toad.rmq.cl
 using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
-//Exchange Tanımlama
-channel.ExchangeDeclare(exchange: "direct-exchange-example", type: ExchangeType.Direct);
-
-//Yollanan değer
-while (true)
+channel.ExchangeDeclare(exchange:"fanout-exchange-example",type: ExchangeType.Fanout);
+for (int i = 0; i < 100; i++)
 {
-    Console.Write("Mesaj : ");
-    string message = Console.ReadLine();
-    byte[] byteMessage = Encoding.UTF8.GetBytes(message);
-
-    channel.BasicPublish(exchange: "direct-exchange-example", routingKey: "direct-queue-example", body: byteMessage);
+    await Task.Delay(200);
+    byte[] message = Encoding.UTF8.GetBytes($"Merhaba {i}");
+    channel.BasicPublish(exchange: "fanout-exchange-example", routingKey: string.Empty, body: message);
 }
-Console.Read();
+
+
+//*2//// Direct Exchange ////////
+////Exchange Tanımlama
+//channel.ExchangeDeclare(exchange: "direct-exchange-example", type: ExchangeType.Direct);
+
+////Yollanan değer
+//while (true)
+//{
+//    Console.Write("Mesaj : ");
+//    string message = Console.ReadLine();
+//    byte[] byteMessage = Encoding.UTF8.GetBytes(message);
+
+//    channel.BasicPublish(exchange: "direct-exchange-example", routingKey: "direct-queue-example", body: byteMessage);
+//}
+//Console.Read();
+////////////////////////
 
 
 
-
-////// Basic RabbitMQ ////////
+//*1//// Basic RabbitMQ ////////
 ////kuyruk oluşturma
 //channel.QueueDeclare(queue:"Example-queue", exclusive: false, durable:true);
 
